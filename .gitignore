@@ -8,4 +8,4 @@
 *.blg
 *.fdb_latexmk
 *.toc
-
+*.out
