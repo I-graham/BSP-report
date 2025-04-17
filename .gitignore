@@ -1,3 +1,11 @@
 *.aux
 *.sync
+*.log
+*.bbl
+*.synctex.gz
+*.synctex.gz.sum.synctex
+*.fls
+*.blg
+*.fdb_latexmk
+*.toc
 
