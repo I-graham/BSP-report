@@ -4,7 +4,7 @@ The first major design decision we must make is what kinds of programming langua
 
 \subsection{Functional Terms}
 
-We define expressions in such a language as follows:\footnote{ The implementation we use is essentially the graph reduction technique described in \textit{The Implementation of Functional Programming Lanugages}~\cite{SLPJ}. This allows for laziness and shared reduction and is performant enough for our purposes, but more sophisticated (even optimal) algorithms exist. } 
+We define expressions in such a language as follows: 
 
 \begin{lstlisting}[language=rust]
 pub type Thunk = Rc<RefCell<Term>>; // A pointer to a mutable term
@@ -57,12 +57,12 @@ let four = term!([square] [:two]);
 
 \subsection{Functional Languages}
 
-As stated earlier, in their most basic form, our languages are determined by the primitives they offer, each of which will be annotated with a \texttt{Type}.
+As stated earlier, in their most basic form, our languages are determined by the primitives they offer, each of which will be annotated with a \texttt{Type}. Again, we will only consider simply-typed programs, meaning we do not allow any kind of polymorphism.
 
 \begin{lstlisting}[language=rust]
 pub enum Type {
-    Var(Identifier),
-    Fun(Rc<Type>, Rc<Type>),
+    Var(Identifier), // A base type
+    Fun(Rc<Type>, Rc<Type>), // A function type
 }
 \end{lstlisting}
 
@@ -112,7 +112,7 @@ The \texttt{Term::val} function converts its argument into a \texttt{Term} by co
 // ifpos c t e = if (c) { t } { e }
 // Lazy in `t' and `e' 
 let ifpos = builtin!(
-  Bool => N => N 
+  Bool => N => N => N 
   |c| => if c.get::<bool>() {
     term!(t e -> t)
   } else {
@@ -123,4 +123,76 @@ let ifpos = builtin!(
 
 \subsection{Term Reduction}
 
-Our reduction strategy is as follows: 
+The implementation we use is essentially the graph reduction technique described in \textit{The Implementation of Functional Programming Lanugages}~\cite{SLPJ}. This allows for laziness and shared reduction and is performant enough for our purposes, but more sophisticated (even optimal) algorithms exist.
+
+To evaluate a term, we reduce it until we reach a weak head normal form (WHNF). That is, either a lambda abstraction or a primitive function applied to too few arguments. Our reduction strategy is based on \textit{spine reduction}. We traverse the term's leftmost nodes top-down until we reach the \textit{head} of the term (the first subterm which is not an application). If the head is an application of a $\lambda$-abstraction to an argument, we perform a \textit{template instantiation} operation, substituting a reference to the argument in place of the parameter everwhere it appears in the body of the lambda term (this is where the \texttt{Ref} variant is useful). If the head is a variable, we look it up in our context, and (if it exists), check if it is applied to enough arguments to invoke its definition. If so, we evaluate all of its arguments (hence the strictness of primitives) and replace the subnode at the appropriate level with the result. We continue until we perform no more reductions. A simplified version of the interpreter's main code is shown below.
+
+\begin{lstlisting}[language=rust]
+enum CollapsedSpine {
+    // If spine is in weak head normal form
+    Whnf,
+    // A built-in function & a stack of arguments
+    Exec(BuiltIn, Vec<Thunk>),
+}
+
+impl Context {
+  // Caller function ignores output of collapse_spine
+  pub fn evaluate(&self, term: &mut Term) {
+    self.collapse_spine(&mut term, 0);
+  }
+  
+  //The depth is the number of arguments along the spine, so far 
+  pub fn collapse_spine(
+    &self,
+    term: &mut Term,
+    depth: usize
+  ) -> CollapsedSpine {
+    match term {
+      Ref(r) => self.collapse_spine(r, depth),
+      Val(_) | Lam(_, _) => Whnf,
+      Var(v) => match self.lookup(v) {
+        // If head is a variable takes no arguments, once again,
+        // replace it and continue,
+        Some(builtin) if builtin.n_args == 0 => {
+          *term = builtin.func(&[]);
+          self.collapse_spine(term, depth)
+        },
+        // If we have enough arguments to apply this function,
+        // we start building a stack of arguments.
+        Some(builtin) if builtin.n_args <= depth {
+          Exec(builtin, vec![])
+        }
+        // If we do not have enough arguments, we are in WHNF
+        _ => Whnf,
+      }
+      App(l, r) => match self.collapse_spine(l, depth + 1) {
+        Exec(builtin, mut args) => {
+          args.push(r);
+          //If we have enough arguments, apply the function 
+          if args.len() == builtin.n_args {
+            // The args will be in reverse order
+            args.reverse();
+            for arg in &mut args {
+              self.evaluate(arg);
+            }
+            // Call function & continue
+            *term = builtin.func(&args);
+            return self.collapse_spine(term, depth);
+          }
+
+          // If we do not have enough arguments, keep pushing
+          // onto the stack of parameters.
+          Exec(builtin, args)
+        } 
+        // Template instantiation
+        Whnf => if let Lam(arg, body) = l {
+          *term = body.instantiate(arg, r);
+          self.collapse_spine(term, depth)
+        } else {
+          Whnf
+        }
+      }
+    }
+  } 
+}
+\end{lstlisting}
