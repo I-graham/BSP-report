@@ -54,7 +54,6 @@ let two = term!((a b -> a) 2 "x");
 let two = 2;
 let four = term!([square] [:two]);
 \end{lstlisting}
-
 \subsection{Functional Languages}
 
 As stated earlier, in their most basic form, our languages are determined by the primitives they offer, each of which will be annotated with a \texttt{Type}. Again, we will only consider simply-typed programs, meaning we do not allow any kind of polymorphism.
@@ -65,7 +64,6 @@ pub enum Type {
     Fun(Rc<Type>, Rc<Type>), // A function type
 }
 \end{lstlisting}
-
 In order to evaluate a term, we will have to define an environment in which to run in. We do this by defining a \texttt{Language} trait (an interface, in other languages) with a method to construct the \texttt{Context} terms will be evaluated in. We also provide a \texttt{Builtin} type and a \texttt{builtin!} macro to simplify the definition of primitives, both of whose definitions we omit from this report. A simple example we will revisit several times is the language of polynomials with positive integer coefficients:
 
 \begin{lstlisting}[language=rust]
@@ -179,7 +177,6 @@ impl Context {
             *term = builtin.func(&args);
             return self.collapse_spine(term, depth);
           }
-
           // If we do not have enough arguments, keep pushing
           // onto the stack of parameters.
           Exec(builtin, args)
