@@ -1,5 +1,14 @@
-\begin{abstract}
+#set page(margin: 1.5in)
+
+#align(center)[
+  #set par(justify: false)
+  #set heading(numbering: none)
+  = Abstract
+]
+
+#linebreak()
+
+#set par(justify: true)
 
 Program Synthesis is the field of programs which write programs, usually with a formal logical specification. In this project, I focus on designing and building a PBE (Programming-by-Example) Synthesizer, with the primary goal of being able to deduce from a piece of data (such as, a set or sequence of integers), a program which might have generated it, or which can explain most of its content. Synthesizers of this sort are useful for pattern recognition in settings where datasets are small and approximate answers are not desired. I use a combination of enumerative and Montecarlo techniques, and discuss the practical and theoretical implications of different possible design choices. The resulting tool is very general, and can be used to evaluate and compare the expressivity of programming languages, or to try to determine the Kolmogorov Complexity (or Minimum Description Length), of different sequences in any (total) programming language. I discuss the results of some such experiments, and give outlines of several other similar potential future experiments.
 
-\end{abstract}

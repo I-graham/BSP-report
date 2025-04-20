@@ -1,12 +1,12 @@
-\section{Program Evaluation}
+= Program Evaluation
 
 The first major design decision we must make is what kinds of programming languages we will consider. Throughout this project, we will only consider simply typed functional languages without any advanced features (such as pattern matching, exceptions, type constructors, etc...). This is because their simplicity makes them much easier to define, implement, analyze, and because they share a common grammar, which allows us to enumerate programs much more easily. What this means is that a language's behaviour should defined solely by the builtin primitive constants it provides. As we will see later on, this limitation will actually turn out to be a powerful tool in defining our search space more precisely.
 
-\subsection{Functional Terms}
+== Functional Terms
 
 We define expressions in such a language as follows: 
 
-\begin{lstlisting}[language=rust]
+```rust
 pub type Thunk = Rc<RefCell<Term>>; // A pointer to a mutable term
 pub type Value = Rc<dyn TermValue>; // A pointer to a value
 
@@ -17,29 +17,27 @@ pub enum Term {
     App(Thunk, Thunk), // An application of one term on another
     Ref(Thunk), // Transparent indirection to another term 
 }
-\end{lstlisting}
+```
 
-The \texttt{Value} type stores a pointer to a value, whose type has been erased (similar to how Haskell erases all type information at runtime). The \texttt{Ref} variant is simply a transparent pointer to another term, which will be useful during term reduction. As an example, the term $(\lambda x.\mathrm{max}(x)(1))$ would be represented as follows (omitting pointers and \texttt{Ref}s, and representing application by @):
+#let app = $circle.stroked.small$
 
-\begin{center}
-  \begin{tikzpicture}
-    \node {$\lambda x$}
-      [level distance=0.75cm]
-      child {
-        node {@}
-        child {
-          node {@}
-          child {node {max}}
-          child {node {$x$}}
-        }
-        child {node {1}}
-      };
-  \end{tikzpicture}
-\end{center}
+The `Value` type stores a pointer to a value, whose type has been erased (similar to how Haskell erases all type information at runtime). The `Ref` variant is simply a transparent pointer to another term, which will be useful during term reduction. As an example, the term $lambda x."max" (x) (1)$ would be represented as follows (omitting pointers and `Ref`s, and denoting application by #app):
 
-In order to simplify this syntax in our code, define a \texttt{term!} macro which parses these terms at compile-time. It allows us to write in a more familiar Haskell-style syntax, and insert variables and constants into terms:
+#import "@preview/cetz:0.3.4": canvas, draw, tree
+#align(center)[
+  #canvas({
+    import draw: *
+    
+    set-style(content: (padding: .1))
 
-\begin{lstlisting}[language=rust]
+    tree.tree(([$lambda x$], ([#app], ([#app], [max], [$x$]), [1])), spread: 1.3)
+
+  })
+]
+
+In order to simplify this syntax in our code, define a `term!` macro which parses these terms at compile-time. It allows us to write in a more familiar Haskell-style syntax, and insert variables and constants into terms:
+
+```rust
 // A pure lambda-term
 let apply = term!(f x -> f x x);
 
@@ -53,20 +51,22 @@ let two = term!((a b -> a) 2 "x");
 // should be parsed as a value.
 let two = 2;
 let four = term!([square] [:two]);
-\end{lstlisting}
-\subsection{Functional Languages}
+```
 
-As stated earlier, in their most basic form, our languages are determined by the primitives they offer, each of which will be annotated with a \texttt{Type}. Again, we will only consider simply-typed programs, meaning we do not allow any kind of polymorphism.
+== Functional Languages
 
-\begin{lstlisting}[language=rust]
+As stated earlier, in their most basic form, our languages are determined by the primitives they offer, each of which will be annotated with a `Type`. Again, we will only consider simply-typed programs, meaning we do not allow any kind of polymorphism.
+
+```rust
 pub enum Type {
     Var(Identifier), // A base type
     Fun(Rc<Type>, Rc<Type>), // A function type
 }
-\end{lstlisting}
-In order to evaluate a term, we will have to define an environment in which to run in. We do this by defining a \texttt{Language} trait (an interface, in other languages) with a method to construct the \texttt{Context} terms will be evaluated in. We also provide a \texttt{Builtin} type and a \texttt{builtin!} macro to simplify the definition of primitives, both of whose definitions we omit from this report. A simple example we will revisit several times is the language of polynomials with positive integer coefficients:
+```
 
-\begin{lstlisting}[language=rust]
+In order to evaluate a term, we will have to define an environment in which to run in. We do this by defining a `Language` trait (an interface, in other languages) with a method to construct the `Context` terms will be evaluated in. We also provide a `Builtin` type and a `builtin!` macro to simplify the definition of primitives, both of whose definitions we omit from this report. A simple example we will revisit several times is the language of polynomials with positive integer coefficients:
+
+```rust
 // Polynomials is a data structure with no fields
 pub struct Polynomials;
 
@@ -102,11 +102,11 @@ impl Language for Polynomials {
     ])
   }
 }
-\end{lstlisting}
+```
 
-The \texttt{Term::val} function converts its argument into a \texttt{Term} by converting it into a \texttt{Value}. The \texttt{Term::get} method casts a \texttt{Term::Val} into a given type (which can never fail if our program is well-typed). It's worth noting that these primitives are strict in all their arguments. We can get around this by reducing to a projection term instead of taking extra arguments:
+The `Term::val` function converts its argument into a `Term` by converting it into a `Value`. The `Term::get` method casts a `Term::Val` into a given type (which can never fail if our program is well-typed). It's worth noting that these primitives are strict in all their arguments. We can get around this by reducing to a projection term instead of taking extra arguments:
 
-\begin{lstlisting}[language=rust]
+```rust
 // ifpos c t e = if (c) { t } { e }
 // Lazy in `t' and `e' 
 let ifpos = builtin!(
@@ -117,15 +117,15 @@ let ifpos = builtin!(
     term!(t e -> e)
   }
 )
-\end{lstlisting}
+```
 
-\subsection{Term Reduction}
+== Term Reduction
 
-The implementation we use is essentially the graph reduction technique described in \textit{The Implementation of Functional Programming Lanugages}~\cite{SLPJ}. This allows for laziness and shared reduction and is performant enough for our purposes, but more sophisticated (even optimal) algorithms exist.
+The implementation we use is essentially the graph reduction technique described in _The Implementation of Functional Programming Lanugages_@SLPJ. This allows for laziness and shared reduction and is performant enough for our purposes, but more sophisticated (even optimal) algorithms exist.
 
-To evaluate a term, we reduce it until we reach a weak head normal form (WHNF). That is, either a lambda abstraction or a primitive function applied to too few arguments. Our reduction strategy is based on \textit{spine reduction}. We traverse the term's leftmost nodes top-down until we reach the \textit{head} of the term (the first subterm which is not an application). If the head is an application of a $\lambda$-abstraction to an argument, we perform a \textit{template instantiation} operation, substituting a reference to the argument in place of the parameter everwhere it appears in the body of the lambda term (this is where the \texttt{Ref} variant is useful). If the head is a variable, we look it up in our context, and (if it exists), check if it is applied to enough arguments to invoke its definition. If so, we evaluate all of its arguments (hence the strictness of primitives) and replace the subnode at the appropriate level with the result. We continue until we perform no more reductions. A simplified version of the interpreter's main code is shown below.
+To evaluate a term, we reduce it until we reach a weak head normal form (WHNF). That is, either a lambda abstraction or a primitive function applied to too few arguments. Our reduction strategy is based on _spine reduction_. We traverse the term's leftmost nodes top-down until we reach the _head_ of the term (the first subterm which is not an application). If the head is an application of a $lambda$-abstraction to an argument, we perform a _template instantiation_ operation, substituting a reference to the argument in place of the parameter everwhere it appears in the body of the lambda term (this is where the `Ref` variant is useful). If the head is a variable, we look it up in our context, and (if it exists), check if it is applied to enough arguments to invoke its definition. If so, we evaluate all of its arguments (hence the strictness of primitives) and replace the subnode at the appropriate level with the result. We continue until we perform no more reductions. A simplified version of the interpreter's main code is shown below.
 
-\begin{lstlisting}[language=rust]
+```rust
 enum CollapsedSpine {
     // If spine is in weak head normal form
     Whnf,
@@ -192,4 +192,6 @@ impl Context {
     }
   } 
 }
-\end{lstlisting}
+```
+
+#pagebreak()
