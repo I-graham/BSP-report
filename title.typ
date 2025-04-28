@@ -1,3 +1,5 @@
+#set page(numbering: none)
+
 #align(center)[
 
   #v(2cm)

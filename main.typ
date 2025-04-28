@@ -1,16 +1,25 @@
 #set heading(numbering: "1.1")
-#set page(paper: "a4", margin: 1.1in)
+#set page(paper: "a4", margin: 1.1in, numbering: "1")
 #set par(leading: 0.80em, spacing: 0.90em, first-line-indent: 1.8em, justify: true)
 #set text(font: "New Computer Modern", spacing: 100%, size: 12pt)
-#show raw: set block(above: 2em, below: 2em)
+#show math.equation: box 
+#show raw.where(block:true): it => {
+  set block(above: 2em, below: 2em)
+  set text(size: 09pt)
+  it
+}
 #show heading: set block(above: 1.4em, below: 1em)
-#show link: underline
+#show enum: set block(above: 2em, below: 2em)
 
 #include "title.typ"
 #include "abstract.typ"
 #include "toc.typ"
 
-#include "intro.typ"
+#include "introduction.typ"
 #include "interpreter.typ"
+#include "enumeration.typ"
+#include "semantics.typ"
+
+#include "appendix.typ"
 
 #bibliography("refs.bib")
