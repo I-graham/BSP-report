@@ -73,17 +73,16 @@ We can translate any subnode into this form without much difficulty by expanding
 
 #linebreak()
 
-#box(
+#align(center, box(
   width: 90%,
   table(
     columns: (2fr, 3fr, 3fr),
-    align: center,
     [Term Size],[No analysis],[With analysis],
     [2],[3],[3],
     [6],[18],[4],
     [10],[29],[8],
     [50],[677],[249] 
-  )
+  ))
 )
 
 Polynomials are simple enough to be analyzed easily and exactly (i.e., we have semantic equality between two polynomial terms iff their analysis yields $alpha$-equivalent `PolySem`s). We cannot hope to do this generally, but even in more complex languages, we can still greatly reduce our search space by informing the enumerator of simple equivalences (such as which functions commute or associate with each other).

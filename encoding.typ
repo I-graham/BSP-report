@@ -21,7 +21,7 @@ foldNat (Succ n) z f = f n (foldNat n z f)
 
 Additionally, there are many theoretical results about the expressiveness of programs of different types. For example, If we were concerned with sequences of objects of a finite type `A`, for example, we could provide an `equal? : A => A > Bool` primitive and restrict ourselves to the Regular Languages by constructing terms of type `(A => B => B) => B => B` (where `B` is large enough to encode the set of states a DFA would need to recognize the language). Alternatively, by placing restrictions on the order of the types which may appear in the programs we synthesizer, we could restrict ourselves to PTIME, PSPACE, $k$-EXPTIME, or $k$-EXPSPACE (for any $k$).#footnote[See @TLCe or @LetCalc for more.]
 
-== Grammars Through Types
+== Grammars Through Types <Grammar>
 
 As mentioned previously, our interpreter erases all type information at runtime. What this means is that the type system we provide only serves to indicate to the enumerator where each function is syntactically valid. This means that we can take advtantage of this to specify a precise grammar for our language, beyond the basic restriction of it being a functional language.
 

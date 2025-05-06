@@ -108,7 +108,7 @@ When we use the #app_link rule, we have to consider every combination of argumen
   })
 ]
 
-Here, `Arg1` and `Arg2` may have any of the $k-4$ combinations of sizes adding up to $k-3$. If we instead used a function taking $n$ arguments, there would be $O(k^(n-1))$ possible size partitions. We would benefit from pruning this search space, so that we don't begin to enumerate all the possible values of one argument before realizing we have chosen an empty size partition.
+Here, even with a simple function with only 2 arguments, `Arg1` and `Arg2` may have any of the $k-4$ combinations of sizes adding up to $k-3$. We would benefit from pruning this search space, so that we don't begin to enumerate all the possible values of one argument before realizing we have chosen an empty size partition.
 
 It is a bit difficult to express this algorithm in (pseudo-)code without going into excessive detail about the implementation of the enumeration algorithm, but we can again take advantage of our previous cache, and prune any search paths which correspond only to partitions which do not yield any output terms. This allows us to search only partitions where the result of the search for each argument is either `Unknown` or `Inhabited`.
 
