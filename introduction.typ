@@ -6,7 +6,7 @@ Program synthesis is the problem of generating a program from a certain specific
 + "IntelliCode" @IntelliCode: This is a feature of Visual Studio Code which monitors a user's actions and attempts to discover the patterns of user's edits, and then suggests further refactors (usually only requiring 2 examples).
 + Query Synthesis @Shen2014DiscoveringQB: PBE has been used to develop tools which construct SQL queries based on small numbers of tuple examples of rows which should be fetched.#footnote[This is not the same as Query-by-Example, or QBE, which is a feature of many databases which provides a more user-friendly querying interface, and which has existed since the 1970s.]
 
-PBE problems are, by their nature, underspecified, as there will usually be many (even infinitely many) programs satisfying any set of input-output constraints, but it does allow us to generate reasonable conjectures about the underying structure of any given piece of data. It has the very powerful property that we do not have to write any kind of formal specification for our program, which is often not much easier than writing the program itself.
+PBE problems are, by their nature, underspecified, as there will usually be many (even infinitely many) programs satisfying any set of input-output constraints, but it does allow us to generate reasonable conjectures about the underying structure of any given piece of data. It has the very powerful property that we do not have to write any kind of formal specification for our program, which is often not much easier than writing the program itself. As we will see, PBE can be used to construct formal specifications when they are not available.
 
 == Goals & Motivation
 
@@ -24,6 +24,7 @@ The main chapters cover:
 + The interpreter used to evaluate programs.
 + The enumerator which allows us to iterate over certain program spaces.   
 + The incorporation of semantic analysis into our search.
++ The expressiveness of encoding schemes.
 + The use of the Metropolis-Hastings algorithm to expand the scope of our search space. 
 + The results and effectiveness of the synthesizer.
 
@@ -31,6 +32,6 @@ The main chapters cover:
 
 Because of the need for efficiency, I chose to use Rust to implement this synthesizer. This did complicate its implementation, it allowed me to make optimizations which would not have been possible in a higher level language (such as Haskell, which is probably the language which would have made a simple version of this implementation the simplest).
 
-In order to be clear and precise, I try wheverever possible to show the relevant code, but for the sake of brevity and readability, I omit parts of the code which add complexity without offering any insight (type cases, clones, trait derivations, unreachable code branches, etc...), meaning code snippets as they appear in this document may not be strictly correct #footnote[If you are unfamiliar with Rust, the code as shown should be readily comprehensible. If you are familiar with Rust, please ignore any ownership or borrow checker violations.]. Wherever library types are used, I explain their purpose, without delving into their meaning or implementation. However, if you would like more information, see #link("https://doc.rust-lang.org/std").
+In order to be clear and precise, I try wheverever possible to show the relevant code, but for the sake of brevity and readability, I omit parts of the code which add complexity without offering any insight (type cases, clones, trait derivations, unreachable code branches, etc...), meaning code snippets as they appear in this document may not be strictly correct #footnote[If you are unfamiliar with Rust, the code as shown should be readily comprehensible. If you are familiar with Rust, please ignore any ownership or borrow checker violations.]. Wherever library types are used, I explain their purpose, without delving into their meaning or implementation. However, if you would like more information, see #link("https://doc.rust-lang.org/std")[`https://doc.rust-lang.org/std`].
 
 #pagebreak()

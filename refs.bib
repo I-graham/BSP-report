@@ -1,3 +1,46 @@
+
+@inproceedings{StochSuper,
+  author = {Schkufza, Eric and Sharma, Rahul and Aiken, Alex},
+  title = {Stochastic superoptimization},
+  year = {2013},
+  isbn = {9781450318709},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/2451116.2451150},
+  doi = {10.1145/2451116.2451150},
+  abstract = {We formulate the loop-free binary superoptimization task as a stochastic search problem. The competing constraints of transformation correctness and performance improvement are encoded as terms in a cost function, and a Markov Chain Monte Carlo sampler is used to rapidly explore the space of all possible programs to find one that is an optimization of a given target program. Although our method sacrifices completeness, the scope of programs we are able to consider, and the resulting quality of the programs that we produce, far exceed those of existing superoptimizers. Beginning from binaries compiled by llvm -O0 for 64-bit x86, our prototype implementation, STOKE, is able to produce programs which either match or outperform the code produced by gcc -O3, icc -O3, and in some cases, expert handwritten assembly.},
+  booktitle = {Proceedings of the Eighteenth International Conference on Architectural Support for Programming Languages and Operating Systems},
+  pages = {305–316},
+  numpages = {12},
+  keywords = {x86-64, x86, superoptimization, stochastic search, smt, mcmc, markov chain monte carlo, binary, 64-bit},
+  location = {Houston, Texas, USA},
+  series = {ASPLOS '13}
+}
+
+@INPROCEEDINGS{LetCalc,
+  author={Hillebrand, G. and Kanellakis, P.},
+  booktitle={Proceedings 11th Annual IEEE Symposium on Logic in Computer Science}, 
+  title={On the expressive power of simply typed and let-polymorphic lambda calculi}, 
+  year={1996},
+  volume={},
+  number={},
+  pages={253-263},
+  keywords={Computational complexity;Logic;Computer science;Functional programming;Algebra},
+  doi={10.1109/LICS.1996.561337}}
+
+@article{TLCe,
+  title = {Database Query Languages Embedded in the Typed Lambda Calculus},
+  journal = {Information and Computation},
+  volume = {127},
+  number = {2},
+  pages = {117-144},
+  year = {1996},
+  issn = {0890-5401},
+  doi = {https://doi.org/10.1006/inco.1996.0055},
+  url = {https://www.sciencedirect.com/science/article/pii/S0890540196900553},
+  author = {Gerd G. Hillebrand and Paris C. Kanellakis and Harry G. Mairson},
+  abstract = {We investigate the expressive power of the typedλ-calculus when expressing computations over finite structures, i.e., databases. We show that the simply typedλ-calculus can express various database query languages such as the relational algebra, fixpoint logic, and the complex object algebra. In our embeddings, inputs and outputs areλ-terms encoding databases, and a program expressing a query is aλ-term which types when applied to an input and reduces to an output. Our embeddings have the additional property that PTIME computable queries are expressible by programs that, when applied to an input, reduce to an output in a PTIME sequence of reduction steps. Under our database input-output conventions, all elementary queries are expressible in the typedλ-calculus and the PTIME queries are expressible in the order-5 (order-4) fragment of the typedλ-calculus (with equality).}
+}
 @article{gulwani2017program,
   title={Program synthesis},
   author={Gulwani, Sumit and Polozov, Oleksandr and Singh, Rishabh and others},

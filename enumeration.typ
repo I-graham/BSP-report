@@ -77,10 +77,10 @@ pub enum SearchResult<L: Language> {
     Inhabited {
         // The first few Terms output by this query  
         cache: Vec<Term>,
-        // The number of terms that have been found
+        // The number of Terms that have been found
         // (may be more than those that have been cached) 
         count: usize,
-        // The state of the search after the cached terms have been enumerated.
+        // The state of the search after the Terms have been enumerated.
         state: Option<Box<SearchNode<L>>>,
     },
     Empty, // If the search does not yield any terms 

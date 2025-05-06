@@ -3,15 +3,15 @@
 
 = Appendix
 
-== Lambda Calculus Primer <lambda_glossary>
+== Lambda Calculus Basics <lambda_glossary>
 
 #let term = box[$lambda$-term]
 #let terms = box[#(term)s]
 
 + A *#term* is either:
   - a variable,
-  - an abstraction over another #term (i.e., $lambda x . M$ where $M$ is a #term)
-  - an application of two #terms (i.e., $(M N)$ where $M$, $N$ are #terms)
+  - an abstraction over another #term (i.e., $lambda x . M$ where $M$ is a #term),
+  - an application of two #terms (i.e., $(M N)$ where $M$, $N$ are #terms).
 
 + The *subterms* of a #term are all the #terms which appear within it (including itself).
 
@@ -36,5 +36,13 @@
 + All #terms have the form $lambda x_1 dot dot dot x_k . t_1 dot dot dot t_m$ where ${x_i}$ are variables, ${t_i}$ are #terms, $k >= 0$, and $m >= 1$. We say $t_1$ is the *head* of the #term.
 
 + When the head of a #term is a variable, it is in *head normal form*.
+
++ The *order* of a #term is the order of its type, defined as:
+$
+"order"(T) := cases(
+  0 &"if" T "is a variable",
+  "max"(1+"order"(A), "order"(B)) quad &"if" T eq.triple A => B 
+) 
+$
 
 #pagebreak()
