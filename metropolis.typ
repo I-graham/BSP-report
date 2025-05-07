@@ -6,7 +6,7 @@ While enumeration can be used to search for small programs, it relies on complet
 
 The Metropolis-Hastings algorithm is an algorithm to sample from a complex probability distribution. In our case, we will define a distribution that assigns high likelihoods to programs that perform well, and lower likelihoods to programs which perform poorly, and then try to sample from it, in the hopes that we will pick a program which is correct, since these are the programs with the highest probability.
 
-This is a Markov Chain Monte Carlo method, meaning it works by beginning with some initial canididate and repeatedly transitioning to new ones. In order to implement the Metropolis-Hastings algorithm, we will need to define:
+This is a Markov Chain Monte Carlo method, meaning it works by beginning with some initial candidate and repeatedly transitioning to new ones. In order to implement the Metropolis-Hastings algorithm, we will need to define:
 
 + A space $X$ over which our distribution acts.
 + A distribution $P : X => RR$.

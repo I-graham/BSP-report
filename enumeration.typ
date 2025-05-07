@@ -54,7 +54,7 @@ Since we only want to generate terms of a fixed size, at every point in the enum
 
 == Caching
 
-While the above technique could be implemented quite simply, it is not easy to attain high performance. The most important optimizations we can make are those which prune the search space as early as possible. Even costly optimizations of this sort will usually save a lot of time. There are many possible techniques of this sort which could be used, but we discuss only the two most simplest and most important optimizations:
+While the above technique could be implemented quite simply, it is not easy to attain high performance. The most important optimizations we can make are those which prune the search space as early as possible. Even costly optimizations of this sort will usually save a lot of time. There are many possible techniques of this sort which could be used, but we discuss only the two simplest and most important optimizations:
 
 === Query Pruning
 
@@ -67,11 +67,11 @@ type Query = (Type, usize);
 // A map from queries to results
 type PathCache<L: Language> = HashMap<Query, SearchResult<L>>;
 
-// Since some queries have large results, we place a limit on how many terms we can
-// can store in a single cache entry.
+// Since some queries have large results, we place a limit on
+// how many terms we can store in a single cache entry.
 pub const CACHE_SIZE_LIMIT: usize = 16;
 
-// The result of a query
+// The result of a search query
 pub enum SearchResult<L: Language> {
     Unknown, // If the search is still in process
     Inhabited {
@@ -87,7 +87,7 @@ pub enum SearchResult<L: Language> {
 }
 ```
 
-Whenever we begin a new search, we consult the cache to see if this query has been made before. If so, we either skip the search (if it's `Empty`), or use the cached values (before picking up the search at the point where the previous search ran out of space in the cache). This is extremely useful, since many queries yield empty results, or otherwise have few results, even if the search would otherwise be very large.
+Whenever we begin a new search, we consult the cache to see if this query has been made before. If so, we either skip the search (if it's `Empty`), or use the cached values (before picking up the search at the point where the previous search ran out of space in the cache). This is extremely useful, since many search queries yield empty results, or otherwise have few results, even if the search would otherwise be very large.
 
 === Argument Pruning
 

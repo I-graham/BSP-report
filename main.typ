@@ -4,7 +4,7 @@
 #set text(font: "New Computer Modern", spacing: 100%, size: 12pt)
 #show math.equation: box 
 #show raw.where(block:true): it => {
-  set block(inset: 5%, above: 2em, below: 2em)
+  set block(inset: 5%, above: 1em, below: 2em)
   set text(size: 09pt)
 
   it
@@ -23,7 +23,7 @@
 #include "semantics.typ"
 #include "encoding.typ"
 #include "metropolis.typ"
-#include "results.typ"
+#include "conclusion.typ"
 
 #include "appendix.typ"
 

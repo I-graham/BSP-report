@@ -1,6 +1,6 @@
 = Semantic Analysis
 
-While the enumerator may be sufficient to find simple programs in small program spaces, we can massively shrink the program space by performing some semantic analysis. This feature is optional and language-specific. We can do this by building up a 'Canonical' representation of the semantics of each subexpression in any given program. This way, we can enumerate only programs with distinct semantics. This also speeds up the enumeration, since we can also avoid search paths which repeat the same semantics more than once. For example, we might want to detect that the programs `(+) x y` and `(+) y x` are the same, and therefore our enumerator should output one, but doesn't need to output both. 
+While the enumerator may be sufficient to find simple programs in small program spaces, we can massively shrink the program space by performing some semantic analysis. This feature is optional and language-specific. We can do this by building up a 'Canonical' representation of the semantics of each subexpression in any given program. This way, we can enumerate only programs with distinct semantics. This also speeds up the enumeration, since we can also avoid search paths which repeat the same semantics more than once. For example, we might want to detect that the programs `(+) x y` and `(+) y x` are the same, and therefore our enumerator should output one of these, but not both. 
 
 == Semantic Analysis Interface
 
