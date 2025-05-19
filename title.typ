@@ -31,7 +31,7 @@
     \
   ]
   #text(size:14pt)[
-    Word Count: X
+    Word Count: 4999
   ]
 
 ]

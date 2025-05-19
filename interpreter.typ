@@ -1,6 +1,6 @@
 = Program Evaluation
 
-The first major design decision to decide what kinds of programming languages we will consider. Throughout this project, we will only consider simply typed (total) functional languages without any advanced features (such as pattern matching, exceptions, type constructors, etc...).#footnote[Anyone unfamiliar with the basics of Lambda Calculus should see @lambda_glossary for some important definitions.] This is because their simplicity makes them much easier to define, implement, analyze, and because they share a common grammar, which allows us to enumerate programs much more easily. What this means is that a language's behaviour should defined solely by the builtin primitive constants it provides. As we will see later on, this limitation will actually turn out to be a powerful tool in defining our search space more precisely.
+Throughout this project, we will only consider simply typed (total) functional languages without any advanced features (such as pattern matching, type constructors, etc...).#footnote[Anyone unfamiliar with the basics of Lambda Calculus should see @lambda_glossary for some important definitions.] These languages are easy to define, implement, and analyze, and the fact that they have a common grammar allows us to enumerate programs easily. What this means is that a language's behaviour should defined solely by the builtin primitives it provides (See @language_example for an example). 
 
 == Functional Terms
 
@@ -15,13 +15,14 @@ pub enum Term {
     Var(Identifier), // A variable identifier
     Lam(Identifier, Rc<Term>), // A lambda abstraction 
     App(Thunk, Thunk), // An application of one term on another
-    Ref(Thunk), // Transparent indirection to another term 
+    Ref(Thunk), // Transparent indirection to another term,
+                // (useful for implementing shared reduction)
 }
 ```
 
 #let app = $circle.stroked.small$
 
-The `Value` type stores a pointer to a value, whose type has been erased (similar to how Haskell erases all type information at runtime). The `Ref` variant is simply a transparent pointer to another term, which will be useful during term reduction. As an example, the $lambda$-term $lambda x."max"(x) (1)$ would be represented as follows (omitting pointers and `Ref`s, and denoting application by #app):
+The `Value` type stores a pointer to a value, whose type has been erased (similar to how Haskell erases all type information at runtime). As an example, the $lambda$-term $lambda x."max"(x) (1)$ would be represented as follows (omitting pointers and `Ref`s, and denoting application by #app):
 
 #import "@preview/cetz:0.3.4": canvas, draw, tree
 #align(center)[
@@ -37,7 +38,7 @@ The `Value` type stores a pointer to a value, whose type has been erased (simila
 
 We define the *size* of a term as the number of nodes in this tree. For example, the term in the figure above has size 6.
 
-In order to simplify this syntax in our code, define a `term!` macro which parses these terms at compile-time. It allows us to write in a more familiar Haskell-style syntax, and insert variables and constants into terms:
+In order to simplify our code, define a `term!` macro which parses terms at compile-time. This allows us to write in a more familiar Haskell-style syntax:
 
 ```rust
 // A pure lambda-term
@@ -55,9 +56,9 @@ let two = 2;
 let four = term!([square] [:two]);
 ```
 
-== Functional Languages
+== Functional Languages <language_example>
 
-As stated earlier, in their most basic form, our languages are determined by the primitives they offer, each of which will be annotated with a `Type`. Again, we will only consider simply-typed programs, meaning we do not allow any kind of polymorphism.
+As stated earlier, in their most basic form, our languages are determined by the primitives they offer, each of which will be annotated with a `Type`. 
 
 ```rust
 pub enum Type {
@@ -66,7 +67,7 @@ pub enum Type {
 }
 ```
 
-In order to evaluate a term, we will have to define an environment in which to run in. We do this by defining a `Language` trait (an interface, in other languages) with a method to construct the `Context` terms will be evaluated in. We also provide a `Builtin` type and a `builtin!` macro to simplify the definition of primitives, both of whose definitions we omit from this report. A simple example we will revisit several times is the language of polynomials with positive integer coefficients:
+In order to evaluate a term, we will have to define the environment to run it in. We do this by defining a `Language` trait (an interface, in other languages) with a method to construct the `Context` terms will be evaluated in. We also provide a `Builtin` type and a `builtin!` macro to simplify the definition of primitives, both of whose definitions we omit from this report. A simple example we will revisit several times is the language of polynomials with positive integer coefficients:
 
 ```rust
 // Polynomials is a data structure with no fields
@@ -104,14 +105,14 @@ impl Language for Polynomials {
     ])
   }
 }
-```
+``` 
 
 The `Term::val` function converts its argument into a `Term` by converting it into a `Value`. The `Term::get` method casts a `Term::Val` into a given type (which can never fail if our program is well-typed). It's worth noting that these primitives are strict in all their arguments. We can get around this by reducing to a projection term instead of taking extra arguments:
 
 ```rust
-// ifpos c t e = if (c) { t } { e }
+// ifcte c t e = if (c) { t } { e }
 // Lazy in `t' and `e' 
-let ifpos = builtin!(
+let ifcte = builtin!(
   Bool => N => N => N 
   |c| => if c.get::<bool>() {
     term!(t e -> t)
@@ -125,7 +126,7 @@ let ifpos = builtin!(
 
 The implementation we use is essentially the graph reduction technique described in _The Implementation of Functional Programming Lanugages_ @SLPJ. This allows for laziness and shared reduction and is performant enough for our purposes, but more sophisticated (even optimal) algorithms exist.
 
-To evaluate a term, we reduce it until we reach a weak head normal form (WHNF). That is, either a lambda abstraction or a primitive function applied to too few arguments. Our reduction strategy is based on _spine reduction_. We traverse the term's leftmost nodes top-down until we reach the _head_ of the term (the first subterm which is not an application). If the head is an application of a $lambda$-abstraction to an argument, we perform a _template instantiation_ operation, substituting a reference to the argument in place of the parameter everwhere it appears in the body of the lambda term (this is where the `Ref` variant is useful). If the head is a variable, we look it up in our context, and (if it exists), check if it is applied to enough arguments to invoke its definition. If so, we evaluate all of its arguments (hence the strictness of primitives) and replace the subnode at the appropriate level with the result. We continue until we perform no more reductions. A simplified version of the interpreter's main code is shown below.
+To evaluate a term, we reduce it until we reach a _weak head normal form_ (WHNF). That is, either a $lambda$-abstraction or a primitive function applied to too few arguments. Our reduction strategy is based on _spine reduction_. We traverse the term until we reach its _head_ (the first subterm which is not an application), if this is an application of a $lambda$-abstraction to an argument, we perform _template instantiation_, substituting a reference to the argument in place of the parameter wherever it appears in the body of the lambda term (this is where the `Ref` variant is useful). If the head is a variable, we look it up in our context, and check if it is applied to enough arguments to invoke its definition. If so, we evaluate all of its arguments (hence the strictness of primitives) and replace the subnode at the with the result of the invocation. We continue until we perform no more reductions. A simplified version of the interpreter's core code is shown below.
 
 ```rust
 enum CollapsedSpine {

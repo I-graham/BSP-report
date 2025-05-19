@@ -8,18 +8,16 @@
 #let term = box[$lambda$-term]
 #let terms = box[#(term)s]
 
-+ A *#term* is either:
++ a *#term* is either:
   - a variable,
-  - an abstraction over another #term (i.e., $lambda x . M$ where $M$ is a #term),
-  - an application of two #terms (i.e., $(M N)$ where $M$, $N$ are #terms).
+  - an abstraction over another #term (i.e., $lambda x . m$ where $m$ is a #term),
+  - an application of two #terms (i.e., $(m n)$ where $m$, $n$ are #terms).
 
 + The *subterms* of a #term are all the #terms which appear within it (including itself).
 
 #let redex = box[$(lambda x . M) N$]
 
 + A *redex* (from reducible expression) of a #term is a subterm of a #term of the form #redex.
-
-+ An occurence of a variable $v$ in a #term $t$ is *bound* if it appears in a subterm $t = lambda v . u$. Otherwise, it is *free*. We say a variable is *fresh* if it does not appear in any of the #terms under discussion.
 
 + Terms are *$alpha$-equivalent* if they are equal up to the renaming of bound variables.
 

@@ -39,11 +39,11 @@ where
 }
 ```
 
-As we build up the program, we also build up its semantics using the semantics of its subterms. #footnote[We are defining a _fold_ (or catamorphism) from programs of a certain language (with type annotations) to their canonical semantic representations.] Since the semantics of each subterm depends only on the semantics of its own subterms, we can ensure that any two terms with the same semantics (and the same type) are interchangeable, and we don't lose any expressivity by taking one term from using only one term with some semantics. #footnote[This is based on the idea of _Contextual Equivalence_ from Programming Language Theory: If two terms $S$, $T$, have the same semantics, then for any context $C[X]$, $C[S]$ should have the same semantics as $C[T]$. Essentially, we are forbidding introspection.]. Since we shouldn't expect to be able to able to perfectly analyze every program, we include the `Unique` variant, which allows us to indicate that a certain term should be treated as the sole term of its equivalence class. We also include a `Malformed` variant, which allows us to indicate that a term should not be included in our search at all.
+As we build up the program, we also build up its semantics using the semantics of its subterms. #footnote[We are defining a _fold_ (or catamorphism) from programs of a certain language (with type annotations) to their canonical semantic representations.] Since the semantics of each subterm depend only on the semantics of its own subterms, we can ensure that any two terms with the same semantics (and the same type) are interchangeable, and we don't lose any expressivity by not repeating terms with the same semantics. #footnote[This is based on the idea of _Contextual Equivalence_: If two terms $S$, $T$, have the same semantics, then for any context $C[X]$, $C[S]$ should have the same semantics as $C[T]$. Essentially, we are forbidding introspection.] Since we shouldn't expect to be able to able to perfectly analyze every program, we include the `Unique` variant, which allows us to indicate that a certain term should be treated as the sole term of its equivalence class. We also include a `Malformed` variant, which allows us to indicate that a term should not be included in our search at all.
 
 == Semantics of Polynomials
 
-As a simple example, we revisit our language contianing the primitives `zero`, `one`, `(+)`, and `(*)`. Since the programs expressible here are the functions mapping to polynomials with coefficients in $NN^+$, we can convert to the following form:
+As a simple example, we revisit the `Polynomials` language. Since the programs expressible here are the functions mapping to polynomials with coefficients in $NN^+$, we can convert to the following form:
 
 $
 lambda x_1 dot dot dot x_n . (a_0 + a_1 (v_11 v_12 dot dot dot) + a_2 (v_21 v_22 dot dot dot) + dot dot dot)
@@ -52,9 +52,6 @@ $
 This leads to the `PolySem` data structure:
 
 ```rust
-// The language of Polynomials, which takes no parameters
-pub struct Polynomials;
-
 // Semantics of a term (a term taking zero or more arguments and 
 // returning a polynomial)
 pub struct PolySem {  
@@ -69,15 +66,15 @@ pub struct Sum(i32, Vec<Product>);
 pub struct Product(i32, Vec<Identifier>);
 ```
 
-We can translate any subnode into this form without much difficulty by expanding polynomial expressions into the form below, though we must be careful regarding variable collisions (especially with primitives). In order to ensure that this representation is unique, we can sort our variables & monomials lexicographically. As you might expect, this greatly shrinks the space of programs we are considering.
+We can translate any expression into this form by expanding polynomials, though we must be careful regarding variable collisions (especially with primitives). In order to ensure that this representation is unique, we can sort our variables & monomials lexicographically. As you might expect, this greatly shrinks the space of programs we are considering.
 
 #linebreak()
 
 #align(center, box(
-  width: 90%,
+  width: 60%,
   table(
     columns: (2fr, 3fr, 3fr),
-    [Term Size],[No analysis],[With analysis],
+    [Term Size (`N => N`)],[Number of terms (no analysis)],[Number of terms (analysis)],
     [2],[3],[3],
     [6],[18],[4],
     [10],[29],[8],
@@ -85,6 +82,8 @@ We can translate any subnode into this form without much difficulty by expanding
   ))
 )
 
-Polynomials are simple enough to be analyzed easily and exactly (i.e., we have semantic equality between two polynomial terms iff their analysis yields $alpha$-equivalent `PolySem`s). We cannot hope to do this generally, but even in more complex languages, we can still greatly reduce our search space by informing the enumerator of simple equivalences (such as which functions commute or associate with each other).
+#v(2em)
+
+Polynomials are simple enough to be analyzed easily and exactly (i.e., we have semantic equality between two polynomial terms iff their analysis yields $alpha$-equivalent `PolySem`s). We cannot hope to do this generally, but even in more complex languages, we can still greatly reduce our search space by informing the enumerator of simple equivalences.
 
 #pagebreak()
